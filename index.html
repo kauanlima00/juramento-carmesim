@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Juramento Carmesim</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#050505; --wine:#3a0000; --blood:#8b0000; --crimson:#dc143c; --text:#e0e0e0; --muted:#8d8585;
+    --display:'Cinzel Decorative','Georgia',serif; --body:'Inter',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{min-height:100%}
+  body{background:var(--bg);color:var(--text);font-family:var(--body);line-height:1.65;
+    padding-top:calc(104px + env(safe-area-inset-top,0px));padding-bottom:env(safe-area-inset-bottom,0px)}
+  /* Vignette escura nas bordas */
+  body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:5;
+    background:radial-gradient(ellipse at center,transparent 45%,rgba(0,0,0,.92) 100%)}
+
+  /* ---------- Cabeçalho fixo ---------- */
+  header{position:fixed;top:0;left:0;right:0;z-index:10;background:rgba(5,5,5,.96);
+    border-bottom:1px solid var(--wine);padding:calc(10px + env(safe-area-inset-top,0px)) 16px 10px;text-align:center}
+  h1{font-family:var(--display);font-size:clamp(1.1rem,4.6vw,2rem);color:var(--crimson);
+    text-shadow:0 0 12px rgba(220,20,60,.7),0 0 32px rgba(139,0,0,.8);letter-spacing:.04em}
+  .progress{max-width:560px;margin:8px auto 0}
+  .progress-label{display:flex;justify-content:space-between;font-size:.78rem;color:var(--muted);margin-bottom:4px}
+  .bar{height:6px;background:var(--wine);border-radius:3px;overflow:hidden}
+  .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--blood),var(--crimson));
+    box-shadow:0 0 10px var(--crimson);transition:width .8s ease}
+
+  /* ---------- Cartão principal ---------- */
+  main{max-width:680px;margin:0 auto;padding:24px 16px 56px;position:relative;z-index:1}
+  .card{border:1px solid var(--blood);border-radius:4px;padding:clamp(20px,5vw,36px);
+    background:linear-gradient(180deg,rgba(58,0,0,.28),rgba(0,0,0,.6));
+    box-shadow:0 0 28px rgba(139,0,0,.35),inset 0 0 40px rgba(0,0,0,.8)}
+  h2{font-family:var(--display);font-size:clamp(1.15rem,4.2vw,1.55rem);color:var(--crimson);
+    margin-bottom:18px;text-shadow:0 0 10px rgba(139,0,0,.9)}
+  .story p{margin-bottom:14px;opacity:0;animation:fade 1.4s ease forwards}
+  .story em{color:var(--crimson);font-style:normal}
+  @keyframes fade{to{opacity:1}}
+  .actions{margin-top:22px;display:flex;flex-direction:column;gap:12px}
+
+  /* ---------- Botões e campos ---------- */
+  button,input,textarea{font:inherit;color:var(--text)}
+  .btn{background:transparent;border:1px solid var(--blood);padding:14px 16px;border-radius:3px;cursor:pointer;
+    text-align:left;transition:background .25s,box-shadow .25s,border-color .25s}
+  .btn:hover,.btn:focus-visible{background:var(--wine);border-color:var(--crimson);box-shadow:0 0 14px rgba(220,20,60,.5);outline:none}
+  .btn.primary{background:var(--blood);text-align:center;font-weight:600;animation:pulse 2.4s ease-in-out infinite}
+  .btn.ghost{border-color:#2a2a2a;color:var(--muted);font-size:.85rem;padding:9px;text-align:center}
+  @keyframes pulse{0%,100%{box-shadow:0 0 6px rgba(139,0,0,.6)}50%{box-shadow:0 0 22px rgba(220,20,60,.9)}}
+  label{display:block;font-size:.85rem;color:var(--muted);margin:14px 0 6px}
+  input,textarea{width:100%;background:#0d0d0d;border:1px solid var(--wine);border-radius:3px;padding:12px;resize:vertical}
+  input:focus,textarea:focus{outline:none;border-color:var(--crimson);box-shadow:0 0 12px rgba(220,20,60,.4)}
+  .feedback{min-height:1.4em;margin-top:10px;font-size:.92rem;color:var(--crimson)}
+  .shake{animation:shake .4s}
+  @keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-top:20px}
+  .stat{border:1px solid var(--wine);padding:12px;text-align:center;border-radius:3px}
+  .stat b{display:block;font-family:var(--display);font-size:1.4rem;color:var(--crimson)}
+  .stat span{font-size:.78rem;color:var(--muted)}
+  .answers{margin-top:16px;font-size:.92rem;color:var(--muted);border-left:2px solid var(--blood);padding-left:12px}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.story p{opacity:1}}
+
+  /* ===== Extras: detetive, ondas, efeitos de terror ===== */
+  body{padding-top:calc(128px + env(safe-area-inset-top,0px))}
+  body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:4;
+    background:radial-gradient(circle 230px at var(--mx,50%) var(--my,40%),transparent 0,rgba(0,0,0,.42) 100%)}
+  .card{position:relative}
+  .card::after{content:"CASO 0047";position:absolute;top:10px;right:12px;font-family:var(--display);font-size:.62rem;
+    color:rgba(220,20,60,.4);border:1px solid rgba(220,20,60,.35);padding:1px 6px;transform:rotate(5deg)}
+  .card.enter{animation:enter 1s ease both}
+  @keyframes enter{from{opacity:0;filter:blur(6px)}to{opacity:1;filter:none}}
+  h1{animation:flick 7s infinite}
+  @keyframes flick{0%,92%,100%{opacity:1}93%{opacity:.4}94%{opacity:1}96%{opacity:.55}97%{opacity:1}}
+  .low main{animation:flick 4s infinite}
+  .hud{display:flex;justify-content:space-between;font-size:.72rem;color:var(--muted);margin-top:5px}
+  .hud b{color:var(--text)}
+  .heart{display:inline-block;color:var(--crimson);animation:beat var(--beat,1s) infinite}
+  @keyframes beat{0%,100%{transform:scale(1)}15%{transform:scale(1.4)}30%{transform:scale(1)}45%{transform:scale(1.2)}}
+  /* Ondas lentas no rodapé */
+  .sea{position:fixed;left:0;right:0;bottom:0;height:24vh;z-index:0;pointer-events:none;overflow:hidden;animation:bob 9s ease-in-out infinite}
+  .sea svg{position:absolute;bottom:0;left:0;width:200%;height:100%}
+  .sea .w1{fill:rgba(139,0,0,.38);animation:drift 38s linear infinite}
+  .sea .w2{fill:rgba(58,0,0,.75);animation:drift 56s linear infinite reverse}
+  @keyframes drift{to{transform:translateX(-50%)}}
+  @keyframes bob{50%{transform:translateY(9px)}}
+  /* Olhos que piscam no escuro */
+  .eyes{position:fixed;z-index:1;pointer-events:none;opacity:0;display:flex;gap:14px;animation:eyeblink 11s infinite}
+  .eyes i{width:12px;height:5px;border-radius:50%;background:var(--crimson);box-shadow:0 0 10px 3px var(--crimson)}
+  @keyframes eyeblink{0%,70%,83%,90%,100%{opacity:0}74%,80%,86%{opacity:.9}}
+  /* Detetive com lupa */
+  .det{display:block;margin:0 auto 8px;width:min(250px,62vw);overflow:visible;animation:bob 7s ease-in-out infinite}
+  .det .body{filter:drop-shadow(0 0 10px rgba(139,0,0,.8))}
+  .det .lens{transform-origin:168px 172px;animation:sway 6s ease-in-out infinite;filter:drop-shadow(0 0 8px #dc143c)}
+  @keyframes sway{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(7deg)}}
+  .det .iris{animation:look 5s ease-in-out infinite}
+  @keyframes look{0%,100%{transform:translateX(-6px)}50%{transform:translateX(6px)}}
+  .det .glow{animation:lglow 3s ease-in-out infinite}
+  @keyframes lglow{50%{opacity:.35}}
+  /* Reações às escolhas e respostas */
+  .btn.picked{background:var(--blood);border-color:var(--crimson);box-shadow:0 0 26px var(--crimson);animation:none}
+  .actions:has(.picked) .btn:not(.picked){opacity:.25;transition:opacity .4s}
+  input.good{border-color:#e0e0e0;box-shadow:0 0 18px rgba(255,255,255,.45)}
+  input.bad{border-color:var(--crimson);box-shadow:0 0 16px var(--crimson);animation:shake .4s}
+  #fx{position:fixed;inset:0;z-index:20;pointer-events:none;opacity:0}
+  #fx svg{position:absolute;inset:0;width:100%;height:100%;opacity:0}
+  #fx path{fill:none;stroke:#dc143c;stroke-width:1.4;stroke-linecap:round;stroke-dasharray:100;stroke-dashoffset:100;filter:drop-shadow(0 0 4px #8b0000)}
+  #fx.claw{animation:clawbg .75s ease forwards}
+  #fx.claw svg{opacity:1}
+  #fx.claw path{animation:scratch .4s ease-out forwards}
+  #fx.claw path:nth-child(2){animation-delay:.08s}
+  #fx.claw path:nth-child(3){animation-delay:.16s}
+  @keyframes scratch{to{stroke-dashoffset:0}}
+  @keyframes clawbg{0%{opacity:0;background:transparent}40%{opacity:1;background:rgba(139,0,0,.3)}100%{opacity:1;background:#000}}
+  #fx.ok{background:radial-gradient(circle,rgba(220,20,60,.5),rgba(139,0,0,.12) 60%,transparent);animation:lens .8s ease-out}
+  @keyframes lens{0%{opacity:0;clip-path:circle(0% at 50% 45%)}30%{opacity:1}100%{opacity:0;clip-path:circle(75% at 50% 45%)}}
+  #fx.bad{background:rgba(139,0,0,.5);animation:badflash .55s steps(2,end)}
+  @keyframes badflash{0%{opacity:0}10%{opacity:1}25%{opacity:.2}40%{opacity:.9}100%{opacity:0}}
+  /* Botão de som */
+  #snd{position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:30;width:44px;height:44px;border-radius:50%;
+    background:rgba(5,5,5,.85);border:1px solid var(--blood);color:var(--crimson);cursor:pointer;display:grid;place-items:center;transition:box-shadow .25s}
+  #snd:hover,#snd:focus-visible{box-shadow:0 0 14px rgba(220,20,60,.6);outline:none}
+  #snd .x{display:none}#snd.off{opacity:.55}#snd.off .w{display:none}#snd.off .x{display:inline}
+  /* ===== Versão premium ===== */
+  details{margin-top:14px;border:1px solid var(--wine);padding:10px 12px;border-radius:3px}
+  summary{cursor:pointer;color:var(--crimson)}
+  #arq{position:fixed;right:64px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:30;width:44px;height:44px;border-radius:50%;background:rgba(5,5,5,.85);
+    border:1px solid var(--blood);color:var(--crimson);cursor:pointer;display:grid;place-items:center}
+  #arq[hidden],#dos[hidden]{display:none}
+  #dos{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.88);display:grid;place-items:center;padding:16px}
+  .dbox{max-width:560px;width:100%;max-height:80vh;overflow:auto;border:1px solid var(--blood);padding:22px;background:#0a0000;box-shadow:0 0 28px rgba(139,0,0,.5)}
+  .dbox li{margin:0 0 12px 18px;font-size:.92rem}.dbox b{color:var(--crimson)}.dbox .btn{margin-top:10px;width:100%}
+  #act{position:fixed;inset:0;z-index:25;background:#000;display:none;place-items:center;text-align:center;font-family:var(--display);color:var(--crimson)}
+  #act.on{display:grid;animation:actin 2.6s ease forwards}
+  #act span{display:block;font-size:1rem;letter-spacing:.3em;color:#b08d57;margin-bottom:10px}
+  #act b{font-size:clamp(1.8rem,8vw,3.2rem);text-shadow:0 0 22px rgba(220,20,60,.8)}
+  @keyframes actin{0%{opacity:0}20%,75%{opacity:1}100%{opacity:0}}
+  .perfil{margin-top:18px;border:1px solid var(--blood);padding:14px 16px;text-align:center}
+  .perfil h3{font-family:var(--display);color:var(--crimson);font-size:1.1rem;margin-bottom:4px}
+  .letter{margin-top:18px;border:1px solid #b08d57;padding:20px;background:rgba(58,0,0,.35);font-family:Georgia,serif;font-style:italic;white-space:pre-wrap;animation:fade 1.6s ease both}
+  select{width:100%;background:#0d0d0d;border:1px solid var(--wine);border-radius:3px;padding:12px;color:var(--text)}
+  select:focus{outline:none;border-color:var(--crimson)}
+</style>
+</head>
+<body>
+<header>
+  <h1>Juramento Carmesim</h1>
+  <div class="progress" id="progress" hidden>
+    <div class="progress-label"><span id="phaseTitle"></span><span id="phasePct"></span></div>
+    <div class="bar"><i id="barFill"></i></div>
+    <div class="hud"><span><span class="heart">&#9829;</span> <b id="bpm">64</b> bpm</span><span>Pistas <b id="clues">0</b></span><span>Sanidade <b id="san">100</b>%</span></div>
+  </div>
+</header>
+
+<div class="sea" aria-hidden="true">
+  <svg class="w1" viewBox="0 0 2880 200" preserveAspectRatio="none"><path d="M0 90 Q180 30 360 90 T720 90 T1080 90 T1440 90 T1800 90 T2160 90 T2520 90 T2880 90 V200 H0Z"/></svg>
+  <svg class="w2" viewBox="0 0 2880 200" preserveAspectRatio="none"><path d="M0 120 Q180 170 360 120 T720 120 T1080 120 T1440 120 T1800 120 T2160 120 T2520 120 T2880 120 V200 H0Z"/></svg>
+</div>
+<div class="eyes" id="eyes" aria-hidden="true"><i></i><i></i></div>
+<div id="fx" aria-hidden="true"><svg viewBox="0 0 100 100" preserveAspectRatio="none"><path pathLength="100" d="M18 0 L38 100"/><path pathLength="100" d="M44 0 L64 100"/><path pathLength="100" d="M70 0 L90 100"/></svg></div>
+<button id="snd" aria-label="Ligar ou desligar o som" title="Som"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9z"/><path class="w" d="M16 9a4 4 0 0 1 0 6M19 6.5a8 8 0 0 1 0 11"/><path class="x" d="M3 3l18 18"/></svg></button>
+<button id="arq" hidden aria-label="Arquivo do caso" title="Arquivo do caso"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4h12l4 4v12H4z"/><path d="M8 12h8M8 16h8"/></svg></button>
+<div id="dos" hidden><div class="dbox"><h2>Arquivo do caso 0047</h2><ol id="dlist"></ol><button class="btn ghost" id="dclose">Fechar</button></div></div>
+<div id="act" aria-hidden="true"></div>
+<main><div class="card" id="screen"></div></main>
+
+<script>
+/* =====================================================================
+   COMO EDITAR A HISTÓRIA
+   ---------------------------------------------------------------------
+   Tudo que você precisa mudar está na lista PHASES abaixo.
+   • Use {p1} e {p2} no texto: viram os nomes digitados pelo casal.
+   • Separe parágrafos com uma linha em branco (\n\n).
+   • Use <em>palavra</em> para destacar algo em vermelho.
+   • Tipos de fase:
+       "choice"  -> botões de escolha  (edite "choices")
+       "riddle"  -> enigma com resposta (edite "answers", "hint")
+       "dilemma" -> uma pergunta que cada um responde em segredo
+       "final"   -> encerramento com estatísticas (edite "endings")
+   ===================================================================== */
+/* =====================================================================
+   PERSONALIZAÇÃO (MODO PRESENTE)
+   Preencha para entregar o jogo pronto a um casal. Com p1 e p2 preenchidos,
+   o formulário some e a tela inicial vira um presente. Campos:
+   p1, p2 (nomes) | lugar (onde se conheceram) | data (data especial)
+   palavra (palavra secreta, vira um enigma extra) | de (quem presenteia)
+   dedicatoria (carta lacrada que abre no final)
+   historia ('casa' = A Casa de Campo, 'teatro' = A Última Cortina)
+   Também funciona por link: arquivo.html?p1=Ana&p2=Bruno&lugar=Paris&data=12/06&palavra=lua&de=Carla
+   ===================================================================== */
+const CUSTOM = { p1:'', p2:'', lugar:'', data:'', palavra:'', de:'', dedicatoria:'', historia:'' };
+
+const PHASES = [
+  { // ---------- FASE 1 ----------
+    title: "O Encontro Obscuro", type: "choice", act: ["Ato I","A Casa"],
+    text: `A chuva não parava havia três noites quando {p1} e {p2} receberam o envelope: papel preto, lacre de cera vermelha e um único endereço.\n\nDentro de uma velha casa de campo, uma luz tremia na janela do segundo andar. Alguém sabia que vocês viriam, e deixou a porta <em>entreaberta</em>.\n\nO que {p1} e {p2} fazem primeiro?`,
+    choices: [
+      { label: "Entrar juntos, de mãos dadas", tag: "coragem" },
+      { label: "Contornar a casa e olhar pelas janelas", tag: "cautela" },
+      { label: "Chamar em voz alta quem estiver lá dentro", tag: "ousadia" }
+    ]
+  },
+  { // ---------- FASE 2 ----------
+    title: "Decifrando o Enigma do Passado", type: "riddle",
+    text: `No hall, um retrato rasgado. Atrás dele, um cofre com uma inscrição riscada a unha:\n\n<em>"Não tenho voz, mas sussurro. Não tenho asas, mas voo entre dois corações. Quanto mais me guardam, mais peso. O que sou?"</em>\n\n{p1} e {p2} precisam digitar a palavra-chave.`,
+    answers: ["segredo", "segredos", "um segredo"],   // respostas aceitas (sem acento, minúsculas)
+    hint: "Casais fortes sabem guardar um. Casais honestos sabem quando contar.",
+    wrong: "O cofre permanece fechado. Pense melhor, vocês dois."
+  },
+  { // ---------- FASE 3 ----------
+    title: "O Dilema Confidencial", type: "dilemma",
+    text: `O cofre revela um diário e uma vela que se acende sozinha. Na última página, uma ordem:\n\n<em>"Só segue adiante quem se deixa conhecer."</em>\n\nCada um responde em silêncio, sem o outro ver. Depois, as respostas são reveladas.`,
+    q1: "{p1}: o que você sente que ainda não contou a {p2}?",
+    q2: "{p2}: qual momento com {p1} você gostaria de reviver?"
+  },
+  { // ---------- FASE 4 ----------
+    title: "A Biblioteca que Sangra", type: "choice",
+    text: `Na biblioteca, um livro aberto pinga algo escuro sobre a mesa. Ao fundo, as estantes <em>rangem sozinhas</em>, como se alguém caminhasse entre elas.`,
+    choices: [
+      { label: "Examinar o livro com atenção", tag: "curiosidade" },
+      { label: "Seguir o rangido da estante do fundo", tag: "ousadia" },
+      { label: "Apagar a vela e esperar em silêncio", tag: "calma" }
+    ]
+  },
+  { // ---------- FASE 5 ----------
+    title: "O Bilhete na Lombada", type: "riddle",
+    text: `Preso à lombada do livro, um bilhete amarelado:\n\n<em>"Quanto mais se tira de mim, maior eu fico. Onde me cavam, ninguém quer cair."</em>`,
+    answers: ["buraco", "um buraco"],
+    hint: "Os coveiros conhecem bem."
+  },
+  { // ---------- FASE 6 ----------
+    title: "O Corredor das Três Portas", type: "choice",
+    text: `A estante se move e revela um corredor sem fim. Há três portas: uma <em>vermelha</em>, uma sem maçaneta e uma de onde vem uma música distante.\n\n{p1} e {p2} precisam escolher juntos.`,
+    choices: [
+      { label: "A porta vermelha", tag: "paixao" },
+      { label: "A porta sem maçaneta", tag: "enigma" },
+      { label: "A porta da música", tag: "memoria" }
+    ]
+  },
+  { // ---------- FASE 7 ----------
+    title: "O Espelho do Medo", type: "dilemma", act: ["Ato II","Os Espelhos"],
+    text: `Atrás da porta, um espelho de moldura negra. Seu vidro embaça sozinho e escreve com o vapor:\n\n<em>"Diga o que teme, e eu mostro o que resta."</em>`,
+    q1: "{p1}: qual é o seu maior medo sobre o futuro de vocês dois?",
+    q2: "{p2}: o que {p1} faz que sempre faz você se sentir seguro(a)?"
+  },
+  { // ---------- FASE 8 ----------
+    title: "A Caixa de Música", type: "riddle",
+    text: `Uma caixa de música para de tocar bem na hora em que vocês entram. Dentro, um papel:\n\n<em>"Sou feita para ser quebrada, mas só valho se for mantida."</em>`,
+    answers: ["promessa", "promessas", "uma promessa"],
+    hint: "Casais fazem uma no altar, ou no escuro."
+  },
+  { // ---------- FASE 9 ----------
+    title: "O Muro de Fotografias", type: "choice",
+    text: `Na parede, dezenas de fotos de um casal que se parece com {p1} e {p2}. Em todas, os rostos foram <em>riscados</em> com unha. Uma delas tem um fundo inconfundível: <em>{lugar}</em>.`,
+    choices: [
+      { label: "Procurar uma assinatura atrás das molduras", tag: "curiosidade" },
+      { label: "Fechar os olhos e contar até dez juntos", tag: "calma" },
+      { label: "Arrancar as fotos da parede", tag: "ousadia" }
+    ]
+  },
+  { // ---------- FASE 10 ----------
+    title: "A Carta do Perdão", type: "dilemma",
+    text: `Atrás de uma moldura, uma carta endereçada a vocês dois, ainda úmida:\n\n<em>"Todo amor guarda uma dívida. Quem a perdoa primeiro?"</em>`,
+    q1: "{p1}: o que você já perdoou em {p2}?",
+    q2: "{p2}: pelo que você gostaria de pedir desculpas a {p1}?"
+  },
+  { // ---------- FASE 11 ----------
+    title: "As Batidas na Parede", type: "riddle",
+    text: `Um som surdo vem de dentro da parede, cada vez mais rápido. Um bilhete escorrega por uma fresta:\n\n<em>"Bato sem mãos. Acelero com medo e com paixão. Onde moro?"</em>`,
+    answers: ["coração", "coracao", "o coração"],
+    hint: "Está batendo agora, nos dois peitos."
+  },
+  { // ---------- FASE 12 ----------
+    title: "A Escada em Espiral", type: "choice", act: ["Ato III","O Porão"],
+    text: `A parede se abre. Uma escada em espiral desce para um breu que parece <em>respirar</em>. O ar fica mais frio a cada degrau.`,
+    choices: [
+      { label: "{p1} vai na frente, {p2} segura sua mão", tag: "coragem" },
+      { label: "{p2} vai na frente, {p1} segura sua mão", tag: "coragem" },
+      { label: "Descer juntos, bem colados, no escuro", tag: "calma" }
+    ]
+  },
+  { // ---------- FASE 13 ----------
+    title: "A Vela que Não Apaga", type: "riddle",
+    text: `Lá embaixo, uma vela quase no fim ilumina uma mesa de pedra com uma frase gravada:\n\n<em>"Quanto mais eu queimo, mais curta eu fico, e deixo o escuro menos escuro."</em>`,
+    answers: ["vela", "uma vela"],
+    hint: "Ela está acesa diante de vocês."
+  },
+  { // ---------- FASE 14 ----------
+    title: "A Voz que Pede Confissão", type: "dilemma",
+    text: `A chama se curva, como se alguém soprasse. Uma voz sem dono sussurra:\n\n<em>"Quem ama, confessa."</em>`,
+    q1: "{p1}: quando você percebeu que amava {p2}?",
+    q2: "{p2}: o que você mais admira em {p1}?"
+  },
+  { // ---------- FASE 15 ----------
+    title: "A Sala dos Ecos", type: "choice",
+    text: `A sala devolve suas vozes com palavras trocadas. Um eco insiste, cada vez mais alto:\n\n<em>"Não confiem um no outro."</em>`,
+    choices: [
+      { label: "Ignorar o eco e apertar as mãos", tag: "coragem" },
+      { label: "Perguntar ao eco o que ele quer", tag: "curiosidade" },
+      { label: "Gritar o nome um do outro", tag: "paixao" }
+    ]
+  },
+  { // ---------- FASE 16 ----------
+    title: "O Lençol sobre o Vidro", type: "riddle",
+    text: `Ao fim da sala, algo alto coberto por um lençol manchado. Sobre ele, uma frase escrita com sangue seco:\n\n<em>"Repito cada gesto seu sem ter vida. Quebrado, dizem que traz azar."</em>`,
+    answers: ["espelho", "um espelho"],
+    hint: "Foi ele que mostrou vocês dois no corredor."
+  },
+  { // ---------- FASE 17 ----------
+    title: "O Reflexo sem Rosto", type: "choice",
+    text: `O lençol cai. No reflexo, {p1} e {p2} estão sem rosto, e a imagem <em>sorri</em> antes de vocês.`,
+    choices: [
+      { label: "Tocar o vidro", tag: "ousadia" },
+      { label: "Virar o espelho para a parede", tag: "cautela" },
+      { label: "Abraçar um ao outro diante dele", tag: "paixao" }
+    ]
+  },
+  { // ---------- FASE 18 ----------
+    title: "O Pacto Antes do Fim", type: "dilemma",
+    text: `Uma porta de ferro se abre devagar. Antes que ela abra de vez, o chão trava os pés de vocês e uma última exigência ecoa:\n\n<em>"Um pacto, ou ninguém passa."</em>\n\nNo ferro da porta, uma data gravada: <em>{data}</em>.`,
+    q1: "{p1}: prometa algo a {p2} para os próximos meses.",
+    q2: "{p2}: prometa algo a {p1} para os próximos meses."
+  },
+  { // ---------- FASE 19 ----------
+    title: "A Pista Final: O Confronto", type: "choice",
+    text: `Uma figura de capuz está de costas, diante de uma mesa com duas chaves: uma <em>dourada</em> e uma <em>de ferro enegrecido</em>.\n\n— Só uma abre a saída — sussurra a voz. — A outra abre a verdade.\n\nO relógio marca um minuto para a meia-noite. {p1} e {p2} precisam decidir juntos.`,
+    choices: [
+      { label: "Pegar a chave dourada: sair a salvo", tag: "seguranca" },
+      { label: "Pegar a chave de ferro: descobrir a verdade", tag: "verdade" },
+      { label: "Largar as duas e encarar a figura", tag: "confronto" }
+    ]
+  },
+  { // ---------- FASE 20 (FINAL) ----------
+    title: "A Revelação", type: "final", act: ["Epílogo","A Revelação"],
+    text: `O capuz cai. Não há vilão. Há um espelho, e nele, {p1} e {p2}, lado a lado.`,
+    // Final conforme a escolha da Fase 19 (use a "tag" das choices acima)
+    endings: {
+      seguranca: "Vocês escolheram a segurança e, ainda assim, saíram juntos. Às vezes amar é saber proteger.",
+      verdade: "Vocês escolheram a verdade. A chave de ferro abriu a porta que mais importava: a do que sentem um pelo outro.",
+      confronto: "Vocês largaram as chaves e enfrentaram o escuro lado a lado. Esse é o tipo de amor que não precisa de saída."
+    },
+    message: "Mistério resolvido, {p1} e {p2}. O maior segredo desta casa sempre foi vocês dois. Agora, sem testemunhas, cumpram o último enigma: um beijo."
+  }
+];
+/* ================== FIM DA ÁREA EDITÁVEL ================== */
+
+/* =====================================================================
+   SEGUNDA HISTÓRIA: A ÚLTIMA CORTINA (teatro assombrado, 24 fases)
+   Mesmo formato das fases acima. "sus: true" marca fases de muito suspense.
+   Os endings da fase final dependem da "tag" da última escolha (seguranca,
+   verdade ou confronto). Use {p1}, {p2}, {lugar} e {data} no texto.
+   ===================================================================== */
+const STORY_TEATRO = [
+  { title:"Os Ingressos Vermelhos", type:"choice", act:["Ato I","O Saguão"],
+    text:`Dois ingressos vermelhos chegaram sem remetente: <em>"Estreia hoje, à meia-noite. Teatro Imperial, fechado desde 1962."</em>\n\n{p1} e {p2} param diante da porta. A bilheteria está vazia, mas uma luz amarela acende no fim do saguão.`,
+    choices:[{label:"Entrar pela porta principal",tag:"coragem"},{label:"Ler o verso do ingresso antes de entrar",tag:"curiosidade"},{label:"Chamar pelo porteiro",tag:"ousadia"}] },
+  { title:"O Bilhete da Bilheteria", type:"riddle",
+    text:`Sob o vidro da bilheteria, um bilhete amarelado:\n\n<em>"Levanto no começo, desço no fim, e escondo o que vem depois de mim."</em>`,
+    answers:["cortina","a cortina","uma cortina"], hint:"É vermelha, pesada e separa a plateia do palco." },
+  { title:"O Cartaz dos Amantes", type:"dilemma",
+    text:`No saguão, um cartaz desbotado: <em>"Os Amantes de Ferro"</em>. No canto, escrito à mão: <em>{data}</em>.\n\nEmbaixo, uma frase: <em>"Toda peça de amor começa com duas pessoas e uma escolha."</em>`,
+    q1:"{p1}: qual cena da vida de vocês seria o primeiro ato de uma peça?", q2:"{p2}: e qual final você escolheria para essa história?" },
+  { title:"A Plateia Vazia", type:"choice",
+    text:`Quatrocentas poltronas, e só duas com casacos pendurados, como se alguém tivesse acabado de sair. As cortinas <em>respiram</em> sozinhas.`,
+    choices:[{label:"Sentar nas poltronas marcadas",tag:"calma"},{label:"Examinar os casacos",tag:"curiosidade"},{label:"Ficar de pé no corredor",tag:"cautela"}] },
+  { title:"O Programa da Peça", type:"riddle",
+    text:`No bolso de um casaco, um programa amassado, com um verso sublinhado:\n\n<em>"Falo sem boca, repito o que ouvem, moro em salões vazios."</em>`,
+    answers:["eco","o eco","um eco"], hint:"Em grandes salões, ele sempre responde." },
+  { title:"As Luzes do Palco", type:"choice",
+    text:`Um refletor acende sobre o palco. Há figuras de cera em volta de uma mesa posta, e uma cadeira vazia <em>puxada para trás</em>, esperando alguém.`,
+    choices:[{label:"Subir ao palco juntos",tag:"coragem"},{label:"Observar tudo de longe",tag:"cautela"},{label:"Ir direto para a coxia, com a lanterna",tag:"ousadia"}] },
+  { title:"O Roteiro Esquecido", type:"dilemma", act:["Ato II","O Palco"],
+    text:`Sobre a mesa, um roteiro aberto numa página só: <em>"Todo ator esconde uma falha, e todo amor aprende a atuar com ela."</em>`,
+    q1:"{p1}: qual insegurança sua {p2} já ajudou a vencer?", q2:"{p2}: o que {p1} faz que torna o seu dia o melhor roteiro?" },
+  { title:"O Holofote Teimoso", type:"riddle",
+    text:`O holofote gira e prende o olhar de vocês no chão. Escrito na poeira:\n\n<em>"Sigo você de dia, desapareço no escuro, mas em cena sou protagonista."</em>`,
+    answers:["sombra","a sombra","uma sombra"], hint:"Ela está atrás de vocês agora." },
+  { title:"O Camarim do Espelho", type:"choice", sus:true,
+    text:`No camarim, um espelho de lâmpadas. Com batom vermelho, alguém escreveu: <em>"ELA NÃO FUGIU."</em> Presa à moldura, uma fotografia antiga, com um fundo inconfundível: <em>{lugar}</em>.`,
+    choices:[{label:"Ler as cartas da penteadeira",tag:"curiosidade"},{label:"Limpar o espelho com a manga",tag:"ousadia"},{label:"Abrir a gaveta trancada",tag:"coragem"}] },
+  { title:"A Gaveta Trancada", type:"riddle",
+    text:`Dentro da gaveta, um anel de latão e uma charada:\n\n<em>"Não tenho começo, não tenho fim, e prendo quem diz sim."</em>`,
+    answers:["anel","aliança","alianca","um anel","uma aliança"], hint:"Duas pessoas trocam este objeto no altar." },
+  { title:"As Cartas de Amor", type:"dilemma",
+    text:`Duas cartas dos atores, uma delas rasgada ao meio. Ao pé da mesa, uma pena e uma folha em branco: <em>"Escrevam o que eles nunca conseguiram dizer."</em>`,
+    q1:"{p1}: escreva uma frase de amor para {p2}, como numa carta antiga.", q2:"{p2}: responda à carta de {p1} com a sua frase." },
+  { title:"O Violino do Fosso", type:"choice", sus:true,
+    text:`Do fosso da orquestra, um violino toca sozinho uma valsa lenta, desafinada, <em>sempre no mesmo compasso</em>. A cada volta, ela fica mais perto.`,
+    choices:[{label:"Seguir a música até o fosso",tag:"ousadia"},{label:"Tentar parar o violino",tag:"cautela"},{label:"Dar as mãos e ouvir até o fim",tag:"paixao"}] },
+  { title:"A Etiqueta do Violino", type:"riddle",
+    text:`Na caixa do violino, uma etiqueta enrolada:\n\n<em>"Não tenho corpo, mas encho a sala. Não tenho mãos, mas aperto o peito."</em>`,
+    answers:["música","musica","a música","a musica"], hint:"Ela vinha do fosso, e ainda ecoa." },
+  { title:"O Cabo de Aço", type:"dilemma", act:["Ato III","Os Bastidores"],
+    text:`Na coxia, um cabo de aço atravessa o escuro até uma passarela alta. Uma placa diz: <em>"Só passa quem confia."</em>`,
+    q1:"{p1}: em que momento {p2} mais merece a sua confiança total?", q2:"{p2}: o que {p1} poderia fazer para você confiar ainda mais?" },
+  { title:"A Casa de Máquinas", type:"choice", sus:true,
+    text:`Uma escada de ferro sobe para a casa de máquinas. Cordas de cenário balançam sem vento e uma voz sussurra o nome de {p1}, depois o de {p2}.`,
+    choices:[{label:"{p1} sobe primeiro, {p2} segura a corda",tag:"coragem"},{label:"{p2} sobe primeiro, {p1} segura a corda",tag:"coragem"},{label:"Subir juntos, bem devagar",tag:"calma"}] },
+  { title:"A Fala Perdida", type:"riddle",
+    text:`No painel de controle, um papel preso com fita:\n\n<em>"Todos o decoram, ninguém o vê em cena. Quem o perde, perde a fala."</em>`,
+    answers:["roteiro","o roteiro","um roteiro","texto"], hint:"Começa em cada peça e guia cada fala." },
+  { title:"O Alçapão", type:"choice", sus:true,
+    text:`No chão do palco, um alçapão se abre sozinho. Lá embaixo, um homem de fraque ensaia a mesma cena, sem parar, <em>para uma plateia que nunca veio</em>.`,
+    choices:[{label:"Descer pelo alçapão",tag:"coragem"},{label:"Chamá-lo pelo nome do cartaz",tag:"curiosidade"},{label:"Esperar que ele suba",tag:"calma"}] },
+  { title:"A Verdade do Fantasma", type:"dilemma",
+    text:`O ator para de ensaiar e fala, pela primeira vez em décadas:\n\n<em>"Só solto a cortina quando ouço uma verdade dita sem medo."</em>`,
+    q1:"{p1}: qual é a coisa mais verdadeira que você nunca disse a {p2}?", q2:"{p2}: responda à confissão de {p1} com a sua verdade." },
+  { title:"O Último Verso", type:"riddle",
+    text:`O ator sorri e aponta para uma placa de bronze, gasta de tanto ser tocada:\n\n<em>"Sou o que nunca diminui quando é dividido entre dois, e o que o teatro mais encena."</em>`,
+    answers:["amor","o amor"], hint:"É o que trouxe vocês dois até aqui." },
+  { title:"A Cena Final", type:"choice", sus:true,
+    text:`O ator pede um último favor: que vocês representem a cena que ele nunca terminou, de mãos dadas diante de um espelho de corpo inteiro.`,
+    choices:[{label:"Representar a cena, de mãos dadas",tag:"paixao"},{label:"Recusar e quebrar o espelho",tag:"ousadia"},{label:"Improvisar um final diferente",tag:"curiosidade"}] },
+  { title:"A Página em Branco", type:"dilemma",
+    text:`No espelho, o roteiro reaparece, com a última página em branco: <em>"O que acontece depois da cortina?"</em>`,
+    q1:"{p1}: um sonho que você quer viver com {p2}.", q2:"{p2}: um sonho que você quer viver com {p1}." },
+  { title:"O Relógio do Foyer", type:"riddle",
+    text:`De volta ao saguão, um relógio de parede marca 23:59 e não anda. Uma inscrição na caixa:\n\n<em>"Tenho dois ponteiros, giro sem sair do lugar, e vocês me esqueceram a noite toda."</em>`,
+    answers:["relógio","relogio","o relógio","o relogio"], hint:"Está na parede, marcando a meia-noite." },
+  { title:"A Última Escolha", type:"choice", sus:true,
+    text:`O relógio estala. Três saídas se abrem: a porta dos <em>camarotes</em>, banhada em luz dourada; o <em>alçapão</em>, com um cheiro de verdade antiga; e o <em>palco aberto</em>, de frente para uma plateia de sombras.\n\nO ponteiro dá o primeiro passo. {p1} e {p2} precisam decidir juntos.`,
+    choices:[{label:"Pela porta dourada dos camarotes: sair a salvo",tag:"seguranca"},{label:"Pelo alçapão: descobrir a verdade",tag:"verdade"},{label:"Ao palco: encarar a plateia de sombras",tag:"confronto"}] },
+  { title:"A Última Cortina", type:"final", act:["Epílogo","A Última Cortina"],
+    text:`A cortina cai devagar. Não há fantasma, só um espelho, e nele, {p1} e {p2}, lado a lado, aplaudidos por ninguém e por todos.`,
+    endings:{
+      seguranca:"Vocês saíram pela porta dourada. Viver juntos a salvo também é um final, e dos mais bonitos.",
+      verdade:"O alçapão levou à verdade: o ator nunca desapareceu, só esperava quem o ouvisse até o fim. Vocês ouviram.",
+      confronto:"Vocês enfrentaram a plateia de sombras e fizeram a reverência juntos. Os aplausos vieram do escuro, e eram para vocês."
+    },
+    message:"Fim de espetáculo, {p1} e {p2}. A peça sempre foi sobre vocês dois. Agora que as luzes se apagam, cumpram o último ato: um beijo." }
+];
+
+/* ---------- Fases personalizadas ---------- */
+const ALL_PHASES = PHASES.slice();      // lista original de 20 fases
+const CUSTOM_PHASE = { custom: true, title: "O Cofre Íntimo", type: "riddle",   // só entra se o casal definir uma palavra secreta
+  text: `Num canto escuro, um cofre pequeno, forjado para duas mãos. Não há enigma escrito, só uma pergunta riscada na lataria:\n\n<em>"Qual palavra só {p1} e {p2} conhecem?"</em>`,
+  answers: () => [state.palavra], hint: "Pense em algo que só vocês dois dizem." };
+function buildList(){ const l = (state.historia === 'teatro' ? STORY_TEATRO : ALL_PHASES).slice(); if(state.palavra) l.splice(12, 0, CUSTOM_PHASE); PHASES.length = 0; PHASES.push(...l); }
+
+// ---------- Estado do jogo (guardado só em variáveis) ----------
+let state, current = -1;
+const $ = id => document.getElementById(id);
+const screen = $('screen');
+
+const esc = s => s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm = s => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+const DEF = {lugar:'aquele lugar onde tudo começou', data:'uma data que nunca esquecerão'};
+const fill = t => t.replace(/\{(p1|p2|lugar|data)\}/g, (_, k) => esc(state[k] || DEF[k] || ''));
+const plain = t => t.replace(/\{(p1|p2)\}/g, (_, k) => state[k]);
+const story = t => '<div class="story">' + fill(t).split('\n\n').map((p,i)=>`<p style="animation-delay:${i*0.9}s">${p}</p>`).join('') + '</div>';
+
+function newState(){ return {p1:'',p2:'',log:[],errors:0,hints:0,choices:[],tags:[],answers:null,start:Date.now()}; }
+
+// ---------- Tela inicial ----------
+const FIELDS = ['historia','lugar','data','palavra','de','dedicatoria'];
+const SAVE_KEY = 'juramento-carmesim-v2';
+function getSave(){ try{ const v = JSON.parse(localStorage.getItem(SAVE_KEY)); return v && v.state ? v : null; }catch(e){ return null; } }
+function save(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify({state, current})); }catch(e){} }
+function clearSave(){ try{ localStorage.removeItem(SAVE_KEY); }catch(e){} }
+function pre(){                        // dados do bloco CUSTOM + parâmetros do link
+  const q = new URLSearchParams(location.search), o = {...CUSTOM};
+  ['p1','p2',...FIELDS].forEach(k => { const v = q.get(k); if(v) o[k] = v.slice(0, k === 'dedicatoria' ? 600 : 40); });
+  return o;
+}
+function showStart(){
+  state = newState(); current = -1; AUDIO.setMode('start');
+  $('progress').hidden = true; $('arq').hidden = true; document.body.classList.remove('low');
+  screen.classList.remove('shake'); screen.classList.add('enter');
+  const o = pre(), gift = !!(o.p1 && o.p2), sv = getSave();
+  screen.innerHTML = `
+    <svg class="det" viewBox="0 0 230 260" aria-hidden="true"><defs><radialGradient id="lg"><stop offset="0" stop-color="#3a0000"/><stop offset="1" stop-color="#050000"/></radialGradient></defs>
+      <g class="body"><path d="M55 255 L68 142 Q108 122 148 142 L165 255Z" fill="#120000" stroke="#8b0000"/><path d="M92 136 L108 170 L124 136Z" fill="#1d0707" stroke="#5a0000"/><circle cx="108" cy="104" r="22" fill="#190808"/><ellipse cx="108" cy="86" rx="42" ry="8" fill="#0c0000" stroke="#8b0000"/><path d="M80 86 Q82 52 108 52 Q134 52 136 86Z" fill="#0c0000" stroke="#8b0000"/><path d="M81 80 H135" stroke="#dc143c" stroke-width="4"/><g fill="#dc143c" class="glow"><circle cx="99" cy="104" r="2.6"/><circle cx="117" cy="104" r="2.6"/></g><path d="M148 146 L168 172" stroke="#160000" stroke-width="13" stroke-linecap="round"/></g>
+      <g class="lens"><line x1="168" y1="172" x2="180" y2="148" stroke="#5a0000" stroke-width="7" stroke-linecap="round"/><circle cx="190" cy="116" r="31" fill="url(#lg)" stroke="#dc143c" stroke-width="4"/><ellipse cx="190" cy="116" rx="21" ry="11" fill="#d9c9c9"/><g class="iris"><circle cx="190" cy="116" r="8" fill="#8b0000"/><circle cx="190" cy="116" r="3.5" fill="#000"/></g><path d="M170 116 L180 114 M210 116 L200 119 M190 105 L191 109" stroke="#dc143c" stroke-width=".8"/></g>
+    </svg>
+    <h2 style="text-align:center">${gift ? 'Um presente para vocês' : 'Noite sem fim'}</h2>
+    ${gift ? `<div class="story"><p style="text-align:center">${esc(o.de || 'Alguém que ama vocês')} preparou este caso só para <em>${esc(o.p1)}</em> e <em>${esc(o.p2)}</em>. Respirem fundo e entrem juntos.</p></div>` : `
+    <div class="story"><p style="text-align:center">Um jogo de investigação para dois. Decidam juntos, respondam com sinceridade e descubram o que a casa esconde.</p></div>
+    <label for="n1">Jogador 1</label><input id="n1" maxlength="20" autocomplete="off" placeholder="Nome">
+    <label for="n2">Jogador 2</label><input id="n2" maxlength="20" autocomplete="off" placeholder="Nome">
+    <label for="f_historia">Escolha a história</label>
+    <select id="f_historia"><option value="casa">A Casa de Campo (terror clássico)</option><option value="teatro">A Última Cortina (teatro assombrado, 24 fases)</option></select>
+    <details><summary>Personalizar a história (opcional)</summary>
+      <label for="f_lugar">Onde vocês se conheceram?</label><input id="f_lugar" maxlength="40" autocomplete="off">
+      <label for="f_data">Data especial</label><input id="f_data" maxlength="40" autocomplete="off" placeholder="Ex.: 12/06/2021">
+      <label for="f_palavra">Palavra secreta só de vocês (vira um enigma extra)</label><input id="f_palavra" maxlength="40" autocomplete="off">
+      <label for="f_de">De quem é este presente?</label><input id="f_de" maxlength="40" autocomplete="off">
+      <label for="f_dedicatoria">Dedicatória (abre numa carta lacrada no final)</label><textarea id="f_dedicatoria" rows="3" maxlength="600"></textarea>
+    </details>`}
+    <div class="feedback" id="fb"></div>
+    <div class="actions">${sv ? `<button class="btn" id="cont">Continuar de onde parei (fase ${sv.current + 1})</button>` : ''}
+      <button class="btn primary" id="go">Entrar na casa</button>
+      ${gift ? '' : '<button class="btn ghost" id="link">Copiar link de presente com estes dados</button>'}</div>`;
+  if(!gift){ $('n1').value = o.p1; $('n2').value = o.p2; FIELDS.forEach(k => $('f_' + k).value = o[k] || (k === 'historia' ? 'casa' : '')); if(FIELDS.some(k => o[k])) document.querySelector('details').open = true; }
+  const read = () => { const r = gift ? {...o} : {p1:$('n1').value.trim(), p2:$('n2').value.trim()}; if(!gift) FIELDS.forEach(k => r[k] = $('f_' + k).value.trim()); return r; };
+  $('go').onclick = () => {
+    const r = read();
+    if(!r.p1 || !r.p2){ fail('Digite os dois nomes para começar.'); return; }
+    Object.assign(state, r); state.start = Date.now(); buildList(); goTo(0);
+  };
+  if($('cont')) $('cont').onclick = () => { state = sv.state; buildList(); AUDIO.setMode('game'); goTo(sv.current); };
+  if($('link')) $('link').onclick = () => {
+    const q = new URLSearchParams(); Object.entries(read()).forEach(([k, v]) => v && q.set(k, v));
+    const url = location.href.split('?')[0].split('#')[0] + '?' + q;
+    const ok = () => { $('fb').style.color = '#e0e0e0'; $('fb').textContent = 'Link copiado! Ele só funciona para outra pessoa se o jogo estiver hospedado online.'; };
+    (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject()).then(ok).catch(() => prompt('Copie o link:', url));
+  };
+}
+
+function fail(msg){
+  const fb = $('fb'); fb.style.color=''; fb.textContent = msg; state.errors++;
+  screen.classList.remove('enter','shake'); void screen.offsetWidth; screen.classList.add('shake'); if(current>=0) updateHud(); fx('bad'); AUDIO.sfx('bad');
+}
+
+// ---------- Navegação entre fases ----------
+function goTo(i){
+  current = i; const ph = PHASES[i]; AUDIO.onPhase(i); save(); $('arq').hidden = false; if(ph.act) showAct(ph.act);
+  $('progress').hidden = false;
+  $('phaseTitle').textContent = `Fase ${i+1} de ${PHASES.length}: ${ph.title}`;
+  const pct = Math.round((i+1)/PHASES.length*100);
+  $('phasePct').textContent = pct + '%';
+  $('barFill').style.width = pct + '%';
+  updateHud(); screen.classList.remove('shake','enter'); void screen.offsetWidth; screen.classList.add('enter');
+  window.scrollTo({top:0,behavior:'smooth'});
+  ({choice:renderChoice, riddle:renderRiddle, dilemma:renderDilemma, final:renderFinal})[ph.type](ph);
+}
+const next = () => goTo(current+1);
+
+function renderChoice(ph){
+  screen.innerHTML = `<h2>${esc(ph.title)}</h2>${story(ph.text)}<div class="actions" id="opts"></div>`;
+  ph.choices.forEach(c=>{
+    const b = document.createElement('button'); b.className='btn'; b.innerHTML=fill(c.label);
+    b.onclick = () => { state.choices.push(c.label); state.log.push([ph.title, plain(c.label)]); state.tags.push(c.tag); b.classList.add('picked'); AUDIO.sfx('claw'); fx('claw', next); };
+    $('opts').appendChild(b);
+  });
+}
+
+function renderRiddle(ph){
+  screen.innerHTML = `<h2>${esc(ph.title)}</h2>${story(ph.text)}
+    <label for="ans">Palavra-chave</label><input id="ans" autocomplete="off" placeholder="Digite a resposta">
+    <div class="feedback" id="fb"></div>
+    <div class="actions"><button class="btn primary" id="ok">Abrir o cofre</button>
+    <button class="btn ghost" id="hint">Pedir uma pista</button></div>`;
+  const check = () => {
+    if((typeof ph.answers === 'function' ? ph.answers() : ph.answers).map(norm).includes(norm($('ans').value))){ $('ans').classList.add('good'); state.log.push([ph.title, 'Resposta: ' + $('ans').value.trim()]); $('fb').style.color='#e0e0e0'; $('fb').textContent='Correto. O cofre cede...'; AUDIO.sfx('ok'); fx('ok', next); }
+    else{ $('ans').classList.add('bad'); $('ans').oninput=()=>$('ans').classList.remove('bad'); fail(ph.wrong||'Nada acontece. A resposta está errada.'); }
+  };
+  $('ok').onclick = check;
+  $('ans').onkeydown = e => { if(e.key==='Enter') check(); };
+  $('hint').onclick = () => { state.hints++; $('fb').style.color='#c9a0a0'; $('fb').textContent = 'Pista: ' + ph.hint; };
+}
+
+function renderDilemma(ph){
+  screen.innerHTML = `<h2>${esc(ph.title)}</h2>${story(ph.text)}
+    <label for="a1">${fill(ph.q1)}</label><textarea id="a1" rows="3"></textarea>
+    <label for="a2">${fill(ph.q2)}</label><textarea id="a2" rows="3"></textarea>
+    <div class="feedback" id="fb"></div>
+    <div class="actions"><button class="btn primary" id="ok">Revelar respostas</button></div>`;
+  $('ok').onclick = () => {
+    const a = $('a1').value.trim(), b = $('a2').value.trim();
+    if(!a || !b){ fail(ph.wrong||'Os dois precisam escrever algo antes de continuar.'); return; }
+    state.answers = {a, b}; AUDIO.sfx('ok'); state.log.push([ph.title, state.p1 + ': ' + a + ' / ' + state.p2 + ': ' + b]);
+    screen.innerHTML = `<h2>As respostas foram reveladas</h2>
+      <div class="story"><p><em>${esc(state.p1)}:</em> ${esc(a)}</p><p style="animation-delay:.9s"><em>${esc(state.p2)}:</em> ${esc(b)}</p>
+      <p style="animation-delay:1.8s">Algo mudou entre vocês. A escada para o porão se abre.</p></div>
+      <div class="actions"><button class="btn primary" id="nx">Descer ao porão</button></div>`;
+    $('nx').onclick = next;
+  };
+}
+
+function renderFinal(ph){
+  const secs = Math.round((Date.now()-state.start)/1000);
+  const time = Math.floor(secs/60) + 'min ' + String(secs%60).padStart(2,'0') + 's';
+  const last = state.tags[state.tags.length-1];
+  const ending = ph.endings[last] || '', pf = perfil();
+  const gift = state.dedicatoria ? `<button class="btn" id="env">Abrir a carta lacrada${state.de ? ' de ' + esc(state.de) : ''}</button>` : '';
+  screen.innerHTML = `<h2>${esc(ph.title)}</h2>${story(ph.text + '\n\n' + ending + '\n\n' + ph.message)}
+    <div class="perfil"><h3>${esc(pf[0])}</h3><p>${esc(pf[1])}</p></div>
+    <div class="stats">
+      <div class="stat"><b>${time}</b><span>tempo de investigação</span></div>
+      <div class="stat"><b>${state.errors}</b><span>tentativas erradas</span></div>
+      <div class="stat"><b>${state.hints}</b><span>pistas usadas</span></div>
+      <div class="stat"><b>${state.choices.length}</b><span>decisões em dupla</span></div>
+    </div>
+    <div class="actions">${gift}<button class="btn" id="cert">Baixar certificado (PNG)</button><button class="btn primary" id="again">Jogar novamente</button></div>
+    ${state.dedicatoria ? `<div class="letter" id="letter" hidden>${esc(state.dedicatoria)}</div>` : ''}`;
+  $('again').onclick = () => { clearSave(); showStart(); };
+  $('cert').onclick = certificate;
+  if($('env')) $('env').onclick = () => { $('letter').hidden = false; $('env').hidden = true; AUDIO.sfx('ok'); };
+}
+
+// ---------- Efeitos de terror e interface ----------
+let busy = false, fxId = 0;
+function fx(type, cb){                 // type: 'claw' (garras), 'ok' (acerto), 'bad' (erro)
+  const block = type !== 'bad'; if(block && busy) return; if(block) busy = true;
+  const f = $('fx'), id = ++fxId; f.className = ''; void f.offsetWidth; f.className = type;
+  setTimeout(() => { if(id === fxId) f.className = ''; if(block) busy = false; if(cb) cb(); }, {claw:750, ok:800, bad:550}[type]);
+}
+function updateHud(){                  // batimentos sobem com o avanço e com os erros
+  const bpm = 64 + Math.max(current,0)*4 + state.errors*3, san = Math.max(0, 100 - state.errors*8);
+  $('bpm').textContent = bpm; $('san').textContent = san;
+  $('clues').textContent = Math.max(current,0) + '/' + (PHASES.length-1);
+  document.documentElement.style.setProperty('--beat', (60/bpm).toFixed(2) + 's');
+  document.body.classList.toggle('low', san < 50);
+}
+addEventListener('pointermove', e => {  // lanterna que segue o dedo ou o mouse
+  document.body.style.setProperty('--mx', e.clientX + 'px'); document.body.style.setProperty('--my', e.clientY + 'px');
+});
+const eyes = $('eyes');
+function moveEyes(){ eyes.style.left = (5 + Math.random()*80) + '%'; eyes.style.top = (15 + Math.random()*65) + '%'; }
+moveEyes(); eyes.addEventListener('animationiteration', moveEyes);
+
+/* =====================================================================
+   SONS DE SUSPENSE (gerados no próprio navegador, sem arquivos de áudio)
+   • VOLUME: volume geral, de 0 a 1 (mantenha baixo para ficar discreto).
+   • SUSPENSE_PHASES: fases com o som de "muito suspense".
+     Os números começam em 0 (0 = Fase 1, 6 = Fase 7, 18 = Fase 19).
+   • Sons: tela inicial (drone distante), início do jogo (porta rangendo),
+     jogo (drone grave + batimentos), erro, acerto, escolha (garras),
+     troca de fase, fase de suspense e final.
+   ===================================================================== */
+const VOLUME = 0.5;
+const SUSPENSE_PHASES = [6, 10, 13, 15, 16, 18];
+
+const AUDIO = (() => {
+  let ctx, master, nbuf, amb = null, want = 'start', cur = null, muted = false, timers = [];
+  const R = (a, b) => a + Math.random() * (b - a);
+
+  function init(){
+    if(ctx){ if(ctx.state === 'suspended') ctx.resume(); return; }
+    const AC = window.AudioContext || window.webkitAudioContext; if(!AC) return;
+    ctx = new AC(); master = ctx.createGain(); master.gain.value = muted ? 0 : VOLUME; master.connect(ctx.destination);
+    nbuf = ctx.createBuffer(1, ctx.sampleRate*2, ctx.sampleRate);
+    const d = nbuf.getChannelData(0); for(let i=0;i<d.length;i++) d[i] = Math.random()*2-1;
+    setMode(want);
+  }
+  function env(g, t, a, d, v){
+    g.gain.cancelScheduledValues(t); g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(v, t+a); g.gain.exponentialRampToValueAtTime(0.0001, t+a+d);
+  }
+  function tone(type, f, t, a, d, v, f2, dest){
+    const o = ctx.createOscillator(), g = ctx.createGain(); o.type = type; o.frequency.setValueAtTime(f, t);
+    if(f2) o.frequency.exponentialRampToValueAtTime(f2, t+a+d);
+    env(g, t, a, d, v); o.connect(g); g.connect(dest || master); o.start(t); o.stop(t+a+d+.05);
+  }
+  function noise(t, dur, v, type, f1, f2, q){
+    const s = ctx.createBufferSource(); s.buffer = nbuf;
+    const f = ctx.createBiquadFilter(); f.type = type; f.frequency.setValueAtTime(f1, t); f.frequency.exponentialRampToValueAtTime(f2, t+dur); if(q) f.Q.value = q;
+    const g = ctx.createGain(); env(g, t, dur*.25, dur*.75, v); s.connect(f); f.connect(g); g.connect(master); s.start(t); s.stop(t+dur+.05);
+  }
+  function lowpass(freq){ const f = ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = freq; f.connect(master); return f; }
+
+  // ---- Ambiente contínuo (muda entre a tela inicial e o jogo) ----
+  function stopAmb(){
+    const a = amb; amb = null; timers.forEach(clearTimeout); timers = []; if(!a) return;
+    const t = ctx.currentTime; a.bus.gain.cancelScheduledValues(t); a.bus.gain.setValueAtTime(Math.max(a.bus.gain.value,.0001), t);
+    a.bus.gain.linearRampToValueAtTime(0, t+1.8); a.oscs.forEach(o => o.stop(t+1.9));
+  }
+  function buildAmb(mode){
+    const bus = ctx.createGain(); bus.gain.setValueAtTime(.0001, ctx.currentTime); bus.gain.exponentialRampToValueAtTime(1, ctx.currentTime+3); bus.connect(master);
+    const oscs = [], me = {bus, oscs}, isStart = mode === 'start';
+    const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = isStart ? 420 : 260; lp.connect(bus);
+    const add = (type, f, v) => { const o = ctx.createOscillator(), g = ctx.createGain(); o.type = type; o.frequency.value = f; g.gain.value = v; o.connect(g); g.connect(lp); o.start(); oscs.push(o); };
+    const lfo = ctx.createOscillator(), lg = ctx.createGain(); lfo.frequency.value = isStart ? .07 : .13; lg.gain.value = 90; lfo.connect(lg); lg.connect(lp.frequency); lfo.start(); oscs.push(lfo);
+    if(isStart){            // tela inicial: drone menor e notas agudas distantes
+      add('sine',55,.07); add('sine',55.6,.07); add('sine',65.4,.04); add('triangle',110,.03);
+      const note = () => { if(amb !== me) return; const f = [659,622,523,494][Math.floor(Math.random()*4)], t = ctx.currentTime;
+        tone('sine', f, t, 2, 3.5, .018, null, bus); tone('sine', f+6, t+.3, 2, 3.5, .012, null, bus);
+        timers.push(setTimeout(note, R(5000,10000))); };
+      timers.push(setTimeout(note, 2500));
+    } else {                // jogo: drone grave tenso, vento e batimentos que acompanham o painel
+      add('sine',41.2,.09); add('sine',58.3,.05); add('sawtooth',55,.02); add('triangle',82.4,.02);
+      const beat = () => { if(amb !== me) return; const bpm = 64 + Math.max(current,0)*4 + state.errors*3, t = ctx.currentTime;
+        tone('sine',70,t,.01,.18,.16,38,bus); tone('sine',64,t+.17,.01,.14,.1,36,bus);
+        timers.push(setTimeout(beat, 60000/bpm)); };
+      const wind = () => { if(amb !== me) return; noise(ctx.currentTime, 2.6, .025, 'bandpass', 300, 900, 3); timers.push(setTimeout(wind, R(8000,16000))); };
+      beat(); timers.push(setTimeout(wind, 4000));
+    }
+    return me;
+  }
+  function setMode(m){ want = m; if(!ctx || cur === m) return; if(amb) stopAmb(); amb = buildAmb(m); cur = m; }
+
+  // ---- Efeitos sonoros ----
+  function sfx(name){
+    if(!ctx || muted) return; const t = ctx.currentTime;
+    if(name === 'ok'){            // acerto: sinos cristalinos em tom menor
+      [587.3,698.5,880].forEach((f,i) => { tone('sine', f, t+i*.09, .01, 1.4, .12); tone('triangle', f*2, t+i*.09, .01, .9, .025); });
+    } else if(name === 'bad'){    // erro: trítono grave descendo + sopro
+      tone('sawtooth',130.8,t,.01,.55,.12,92.5,lowpass(900)); tone('sawtooth',185,t,.01,.55,.09,130,lowpass(900)); noise(t,.3,.1,'lowpass',1500,200);
+    } else if(name === 'claw'){   // escolha: três arranhões e um baque
+      for(let i=0;i<3;i++) noise(t+i*.08,.3,.12,'bandpass',4500,900,1.2);
+      tone('sine',50,t+.3,.01,.45,.25,30);
+    } else if(name === 'phase'){  // nova fase: onda grave crescente
+      tone('sine',65.4,t,.5,1,.16,98); noise(t,1.4,.05,'highpass',400,3000);
+    } else if(name === 'stinger'){// fase de muito suspense: cordas dissonantes + trovão
+      const lp = lowpass(2500); tone('sawtooth',880,t,.05,1.3,.05,932,lp); tone('sawtooth',932,t,.05,1.3,.05,988,lp);
+      tone('sine',44,t,.02,1.6,.3,30); noise(t,1.2,.06,'bandpass',2000,600,2);
+    } else if(name === 'enter'){  // começo do jogo: porta rangendo e baque
+      tone('sawtooth',70,t,.9,.9,.07,150,lowpass(500)); tone('sine',48,t+1.7,.02,1.2,.3,28);
+    } else if(name === 'final'){  // final: acorde que se resolve
+      [220,261.6,329.6,440].forEach((f,i) => tone('sine', f, t+i*.15, 1.2, 3.5, .09));
+    }
+  }
+  function onPhase(i){
+    if(i === 0){ sfx('enter'); setMode('game'); return; }
+    sfx('phase');
+    if(i === PHASES.length-1) setTimeout(() => sfx('final'), 600);
+    else if(PHASES[i].sus || SUSPENSE_PHASES.includes(ALL_PHASES.indexOf(PHASES[i]))) setTimeout(() => sfx('stinger'), 500);
+  }
+  function toggle(){
+    muted = !muted; init(); $('snd').classList.toggle('off', muted);
+    if(ctx) master.gain.setTargetAtTime(muted ? 0 : VOLUME, ctx.currentTime, .1);
+  }
+  ['pointerdown','keydown','touchstart'].forEach(ev => addEventListener(ev, init, {passive:true})); // navegadores só liberam áudio após um toque
+  document.addEventListener('visibilitychange', () => { if(ctx) document.hidden ? ctx.suspend() : ctx.resume(); });
+  $('snd').onclick = toggle;
+  return {sfx, onPhase, setMode};
+})();
+
+/* ---------- Cartões de ato, arquivo do caso, perfil e certificado ---------- */
+function showAct(a){ const el = $('act'); el.innerHTML = `<div><span>${esc(a[0])}</span><b>${esc(a[1])}</b></div>`; el.className = ''; void el.offsetWidth; el.className = 'on'; setTimeout(() => el.className = '', 2700); }
+$('arq').onclick = () => { $('dlist').innerHTML = state.log.length ? state.log.map(([t, x]) => `<li><b>${esc(t)}</b><br>${esc(x)}</li>`).join('') : '<li>Nenhuma pista registrada ainda.</li>'; $('dos').hidden = false; };
+$('dclose').onclick = () => $('dos').hidden = true;
+addEventListener('keydown', e => { if(e.key === 'Escape') $('dos').hidden = true; });
+
+const PERFIS = {   // perfil do casal, conforme as escolhas mais frequentes (edite os textos à vontade)
+  coragem:["Os Destemidos","Entraram de mãos dadas e nunca soltaram."],
+  cautela:["Os Estrategistas","Cada passo foi medido, e por isso chegaram inteiros."],
+  ousadia:["Os Ousados","Onde outros recuam, vocês arrombam a porta."],
+  curiosidade:["Os Investigadores","Nenhum detalhe escapou de vocês."],
+  calma:["Os Serenos","O escuro assusta menos quando se respira junto."],
+  paixao:["Os Apaixonados","Diante do medo, o primeiro instinto foi se abraçar."]
+};
+function perfil(){
+  const n = {}; state.tags.forEach(t => { if(PERFIS[t]) n[t] = (n[t] || 0) + 1; });
+  return PERFIS[Object.keys(n).sort((a, b) => n[b] - n[a])[0] || 'coragem'];
+}
+async function certificate(){          // desenha o certificado e baixa como imagem PNG
+  try{ await document.fonts.load('700 60px "Cinzel Decorative"'); }catch(e){}
+  const W = 1200, H = 1600, c = document.createElement('canvas'); c.width = W; c.height = H; const x = c.getContext('2d');
+  x.fillStyle = '#050505'; x.fillRect(0, 0, W, H);
+  const g = x.createRadialGradient(W/2, 420, 40, W/2, 420, 900); g.addColorStop(0, 'rgba(139,0,0,.55)'); g.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = g; x.fillRect(0, 0, W, H);
+  x.strokeStyle = '#b08d57'; x.lineWidth = 3; x.strokeRect(50, 50, W-100, H-100); x.strokeStyle = '#8b0000'; x.lineWidth = 1.5; x.strokeRect(72, 72, W-144, H-144);
+  x.textAlign = 'center'; const D = '"Cinzel Decorative",Georgia,serif';
+  const T = (t, y, f, col) => { x.font = f; x.fillStyle = col; x.fillText(t, W/2, y, 980); };
+  const pf = perfil(), secs = Math.round((Date.now() - state.start)/1000);
+  T('Juramento Carmesim', 250, '700 76px ' + D, '#dc143c');
+  T('Certificado de Investigação', 330, 'italic 38px Georgia,serif', '#b08d57');
+  T('Certificamos que', 520, '34px Georgia,serif', '#e0e0e0');
+  T(state.p1, 640, '700 80px ' + D, '#e0e0e0'); T('&', 730, 'italic 56px Georgia,serif', '#dc143c'); T(state.p2, 830, '700 80px ' + D, '#e0e0e0');
+  T('desvendaram o caso 0047 como', 960, '34px Georgia,serif', '#e0e0e0');
+  T(pf[0], 1050, '700 64px ' + D, '#dc143c'); T(pf[1], 1115, 'italic 32px Georgia,serif', '#b08d57');
+  T(Math.floor(secs/60) + ' min de investigação, ' + state.errors + ' erros e ' + state.hints + ' pistas usadas', 1260, '30px Georgia,serif', '#e0e0e0');
+  T(new Date().toLocaleDateString('pt-BR', {day:'numeric', month:'long', year:'numeric'}), 1330, '30px Georgia,serif', '#8d8585');
+  T('Todo amor guarda um segredo mortal.', 1440, 'italic 36px Georgia,serif', '#e0e0e0');
+  const a = document.createElement('a'); a.download = 'certificado-juramento-carmesim.png'; a.href = c.toDataURL('image/png'); a.click();
+}
+
+showStart();
+</script>
+</body>
+</html>
