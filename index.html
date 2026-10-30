@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Juramento Carmesim – Entrar</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#050505;--wine:#3a0000;--blood:#8b0000;--crimson:#dc143c;--text:#e0e0e0;--muted:#8d8585}
+*{box-sizing:border-box;margin:0}
+body{min-height:100vh;display:grid;place-items:center;background:radial-gradient(ellipse at 50% 0,var(--wine),var(--bg) 70%);color:var(--text);font:17px/1.6 Inter,system-ui,sans-serif;padding:20px}
+.card{max-width:420px;width:100%;border:1px solid var(--blood);padding:32px 26px;border-radius:4px;background:#0a0204;box-shadow:0 0 28px #8b000059}
+h1{font:700 1.7rem 'Cinzel Decorative',Georgia,serif;color:var(--crimson);text-shadow:0 0 14px #8b0000;text-align:center;margin-bottom:14px}
+p{color:var(--muted);text-align:center;margin-bottom:18px}
+input{width:100%;background:#0d0d0d;border:1px solid var(--wine);border-radius:3px;padding:13px;color:var(--text);font:inherit}
+input:focus{outline:none;border-color:var(--crimson)}
+button{width:100%;margin-top:14px;background:var(--blood);color:#fff;border:1px solid var(--crimson);border-radius:3px;padding:14px;font:600 1rem Inter,sans-serif;cursor:pointer}
+button:disabled{opacity:.6}
+#msg{min-height:1.5em;margin-top:12px;color:var(--crimson);font-size:.92rem;text-align:center}
+a{color:var(--crimson)}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Juramento Carmesim</h1>
+  <p>Digite o e-mail que você usou na compra para entrar.</p>
+  <input id="email" type="email" autocomplete="email" placeholder="seu@email.com">
+  <button id="go">Entrar na casa</button>
+  <div id="msg"></div>
+  <p style="margin:14px 0 0;font-size:.9rem">Ainda não comprou? <a href="https://pay.cakto.com.br/zjwn4dk_1247765">Comprar por R$19,90</a></p>
+</div>
+<script>
+const API = 'https://juramento-worker.kauanlimaramalho90.workers.dev'; // ex.: https://juramento.seunome.workers.dev
+const $ = (id) => document.getElementById(id);
+const post = (path, data) => fetch(API + path, { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify(data) });
+
+async function abrir(email, token){
+  const r = await post('/jogo', { email, token });
+  if(!r.ok) throw new Error('sem acesso');
+  const html = await r.text();
+  document.open(); document.write(html); document.close();
+}
+async function entrar(){
+  const email = $('email').value.trim().toLowerCase();
+  if(!email){ $('msg').textContent = 'Digite o seu e-mail.'; return; }
+  $('go').disabled = true; $('msg').textContent = 'Verificando...';
+  try{
+    const r = await post('/entrar', { email });
+    const d = await r.json();
+    if(!r.ok){ $('msg').textContent = d.erro || 'Não foi possível entrar.'; $('go').disabled = false; return; }
+    localStorage.setItem('jc_email', email); localStorage.setItem('jc_token', d.token);
+    await abrir(email, d.token);
+  }catch(e){ $('msg').textContent = 'Erro de conexão. Tente de novo.'; $('go').disabled = false; }
+}
+$('go').onclick = entrar;
+$('email').onkeydown = (e) => { if(e.key === 'Enter') entrar(); };
+const e = localStorage.getItem('jc_email'), t = localStorage.getItem('jc_token');
+if(e && t){ $('msg').textContent = 'Abrindo...'; abrir(e, t).catch(() => { localStorage.removeItem('jc_token'); $('msg').textContent = ''; }); }
+</script>
+</body>
+</html>
